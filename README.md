@@ -46,6 +46,7 @@ Functional router endpoints (`RouterFunction`/`ServerRequest`) are **not** proce
 - **Voice & video calls** (WebRTC, peer-to-peer media; the server only relays signaling over STOMP)
 - **Voice messages** recorded in the browser, with an inline player
 - **Sharing files**: images, video (mp4/webm/mov), audio (mp3/wav/ogg/m4a/aac) and documents (pdf, txt, csv, Word, Excel, PowerPoint), up to 50 MB
+- **Profile images** (avatars): click the 👤 button in the header to upload and change your profile picture
 - Centralized error handling with field-level validation errors
 
 ## 🛠️ Tech Stack
@@ -230,6 +231,20 @@ Then send a message referencing it:
 
 Allowed types: `jpg png gif webp` · `mp4 webm mov` · `mp3 wav ogg m4a aac` (and the `audio/webm` / `audio/mp4` browsers produce when recording) · `pdf txt csv doc docx xls xlsx ppt pptx`. The stored file's extension always comes from the validated content type — never from the client-supplied name — so an uploaded file can't be served back as HTML. Maximum size: 50 MB (`app.upload.max-bytes` and `spring.servlet.multipart.max-file-size`).
 
+### Users
+
+```
+GET /api/users/me
+→ { "status": true, "data": { "id": 1, "username": "alice", "email": "alice@example.com",
+                              "status": "ONLINE", "profileImageUrl": "/uploads/abc123.jpg" } }
+
+PUT /api/users/me                  (application/json)
+{ "profileImageUrl": "/uploads/abc123.jpg" }
+→ { "status": true, "message": "Profile updated successfully", "data": {...} }
+```
+
+The profile image URL (if provided) must be a URL returned by `/api/media/upload` (i.e., starts with `/uploads/`); anything else is rejected for security. To change your profile picture, first upload an image via `/api/media/upload`, then send its URL in a PUT request to `/api/users/me`.
+
 ### Calls
 
 ```
@@ -281,7 +296,7 @@ export TURN_CREDENTIAL="a-long-secret"
 
 ## ⬆️ Upgrading an existing database
 
-Adding `AUDIO` and `VOICE` message types and the `attachment_duration` column needs no manual steps: `ddl-auto=update` adds the column, and `config/SchemaMigration` drops the old `messages_message_type_check` constraint that Hibernate created for the previous enum values (otherwise inserting a voice message would fail on a database created before this change). If you'd rather do it by hand:
+Adding `AUDIO` and `VOICE` message types, the `attachment_duration` column, and the `profile_image_url` column needs no manual steps: `ddl-auto=update` adds the column, and `config/SchemaMigration` drops the old `messages_message_type_check` constraint that Hibernate created for the previous enum values (otherwise inserting a voice message would fail on a database created before this change). If you'd rather do it by hand:
 
 ```sql
 ALTER TABLE messages DROP CONSTRAINT IF EXISTS messages_message_type_check;
