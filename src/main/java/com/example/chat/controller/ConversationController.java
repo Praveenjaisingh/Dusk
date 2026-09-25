@@ -122,11 +122,14 @@ public class ConversationController {
 
     private Map<String, Object> toSummary(Conversation conversation) {
         List<Map<String, Object>> participants = conversation.getParticipants().stream()
-                .map(p -> Map.<String, Object>of(
-                        "id", p.getId(),
-                        "username", p.getUsername(),
-                        "status", p.getStatus().name()
-                ))
+                .map(p -> {
+                    Map<String, Object> summary = new java.util.HashMap<>();
+                    summary.put("id", p.getId());
+                    summary.put("username", p.getUsername());
+                    summary.put("status", p.getStatus().name());
+                    summary.put("avatarUrl", p.getAvatarUrl());
+                    return summary;
+                })
                 .toList();
 
         return Map.of(

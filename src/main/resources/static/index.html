@@ -111,6 +111,18 @@
     max-height:0;overflow:hidden;transition:max-height .25s var(--ease);
   }
   .field .err.show{max-height:24px;margin-top:6px;}
+  .field.has-toggle input{padding-right:46px;}
+  .toggle-eye{
+    position:absolute;right:5px;top:7px;background:none;border:none;color:var(--text-dim);
+    width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    transition:color .15s;
+  }
+  .toggle-eye:hover{color:#fff;}
+  .toggle-eye svg{pointer-events:none;}
+
+  .forgot-line{text-align:right;margin:-6px 0 16px;}
+  .forgot-line button{background:none;border:none;color:var(--gold);font-size:12.5px;font-weight:700;padding:0;}
+  .forgot-line button:hover{text-decoration:underline;}
 
   .btn{
     width:100%;padding:14px 18px;border:none;border-radius:var(--radius-sm);
@@ -168,9 +180,10 @@
     width:40px;height:40px;border-radius:50%;flex:none;
     background:linear-gradient(135deg,var(--gold),var(--coral));
     display:flex;align-items:center;justify-content:center;color:#1B1B2F;
-    font-weight:800;font-size:15px;position:relative;
+    font-weight:800;font-size:15px;position:relative;overflow:hidden;
   }
   .avatar.sm{width:32px;height:32px;font-size:13px;}
+  .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
   .status-dot{
     width:10px;height:10px;border-radius:50%;background:#57D19B;
     position:absolute;right:-1px;bottom:-1px;border:2.5px solid var(--panel);
@@ -185,6 +198,8 @@
     transition:background .15s,color .15s;flex:none;
   }
   .icon-btn:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .me-actions{margin-left:auto;display:flex;align-items:center;gap:2px;}
+  .me-actions .icon-btn{margin-left:0;}
 
   .search-wrap{position:relative;}
   .search-wrap input{
@@ -384,6 +399,40 @@
     width:38px;height:38px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;
   }
 
+  /* ---------- profile settings modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(10,10,20,.7);z-index:70;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .25s var(--ease);
+  }
+  .modal-overlay.show{opacity:1;pointer-events:auto;}
+  .modal-card{
+    width:100%;max-width:440px;max-height:88vh;overflow-y:auto;
+    background:rgba(35,35,63,.97);backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);
+    padding:26px 26px 8px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
+    animation:riseIn .35s var(--ease) both;
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+  .modal-title{font-family:'Fraunces',serif;font-size:21px;color:#fff;margin:0;font-weight:600;}
+  .modal-close{
+    background:rgba(255,255,255,.08);border:none;color:#fff;
+    width:32px;height:32px;border-radius:50%;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+  }
+  .modal-close:hover{background:rgba(255,255,255,.16);}
+  .settings-section{margin-bottom:24px;}
+  .settings-section h3{
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.7px;
+    color:var(--text-dim);margin:0 0 14px;font-weight:700;
+  }
+  .settings-divider{height:1px;background:rgba(255,255,255,.08);margin:0 0 24px;}
+  .avatar-edit-row{display:flex;align-items:center;gap:16px;margin-bottom:4px;}
+  .avatar-edit-row .avatar{width:68px;height:68px;font-size:24px;}
+  .avatar-edit-row .btn-ghost{width:auto;padding:9px 16px;font-size:13px;}
+  .btn-row{display:flex;justify-content:flex-end;}
+  .btn-row .btn{width:auto;padding:11px 22px;font-size:14px;}
+
   .empty-pane{
     flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;gap:10px;padding:40px;
@@ -549,10 +598,12 @@
           <input type="email" id="login-email" placeholder="Email address" autocomplete="email">
           <div class="err" id="login-email-err"></div>
         </div>
-        <div class="field">
+        <div class="field has-toggle">
           <input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
+          <button type="button" class="toggle-eye" id="login-password-toggle" aria-label="Show password" tabindex="-1"></button>
           <div class="err" id="login-password-err"></div>
         </div>
+        <div class="forgot-line"><button type="button" id="go-forgot">Forgot password?</button></div>
         <button class="btn" type="submit" id="login-btn"><span>Sign in</span></button>
       </form>
       <div class="switch-line">New here? <button type="button" id="go-register">Create an account</button></div>
@@ -574,13 +625,54 @@
           <input type="email" id="reg-email" placeholder="Email address" autocomplete="email">
           <div class="err" id="reg-email-err"></div>
         </div>
-        <div class="field">
+        <div class="field has-toggle">
           <input type="password" id="reg-password" placeholder="Password (min. 8 characters)" autocomplete="new-password">
+          <button type="button" class="toggle-eye" id="reg-password-toggle" aria-label="Show password" tabindex="-1"></button>
           <div class="err" id="reg-password-err"></div>
         </div>
         <button class="btn" type="submit" id="register-btn"><span>Create account</span></button>
       </form>
       <div class="switch-line">Already have an account? <button type="button" id="go-login">Sign in</button></div>
+    </div>
+  </div>
+
+  <!-- ======= FORGOT PASSWORD ======= -->
+  <div id="screen-forgot" class="screen hidden">
+    <div class="auth-card">
+      <div class="brand"><div class="brand-mark">🌆</div><div class="brand-name">Dusk</div></div>
+      <h1 class="auth-title">Reset your password</h1>
+      <p class="auth-sub">Enter your account email and we'll send you a link to set a new password. The link stays valid for 10 minutes.</p>
+      <form id="forgot-form" novalidate>
+        <div class="field">
+          <input type="email" id="forgot-email" placeholder="Email address" autocomplete="email">
+          <div class="err" id="forgot-email-err"></div>
+        </div>
+        <button class="btn" type="submit" id="forgot-btn"><span>Send reset link</span></button>
+      </form>
+      <div class="switch-line">Remembered it? <button type="button" id="go-login-from-forgot">Sign in</button></div>
+    </div>
+  </div>
+
+  <!-- ======= RESET PASSWORD (opened from the emailed link) ======= -->
+  <div id="screen-reset" class="screen hidden">
+    <div class="auth-card">
+      <div class="brand"><div class="brand-mark">🌆</div><div class="brand-name">Dusk</div></div>
+      <h1 class="auth-title">Choose a new password</h1>
+      <p class="auth-sub">Pick a new password for your account.</p>
+      <form id="reset-form" novalidate>
+        <div class="field has-toggle">
+          <input type="password" id="reset-password" placeholder="New password (min. 8 characters)" autocomplete="new-password">
+          <button type="button" class="toggle-eye" id="reset-password-toggle" aria-label="Show password" tabindex="-1"></button>
+          <div class="err" id="reset-password-err"></div>
+        </div>
+        <div class="field has-toggle">
+          <input type="password" id="reset-password-confirm" placeholder="Confirm new password" autocomplete="new-password">
+          <button type="button" class="toggle-eye" id="reset-password-confirm-toggle" aria-label="Show password" tabindex="-1"></button>
+          <div class="err" id="reset-password-confirm-err"></div>
+        </div>
+        <button class="btn" type="submit" id="reset-btn"><span>Reset password</span></button>
+      </form>
+      <div class="switch-line"><button type="button" id="go-login-from-reset">Back to sign in</button></div>
     </div>
   </div>
 
@@ -595,9 +687,14 @@
               <div class="me-name" id="me-name">—</div>
               <div class="me-status">Online</div>
             </div>
-            <button class="icon-btn" id="logout-btn" title="Log out">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </button>
+            <div class="me-actions">
+              <button class="icon-btn" id="settings-btn" title="Profile settings">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+              <button class="icon-btn" id="logout-btn" title="Log out">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </div>
           </div>
           <div class="search-wrap">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -695,6 +792,63 @@
   <button class="lightbox-close" id="lightbox-close">✕</button>
   <div id="lightbox-content"></div>
 </div>
+
+<!-- ======= PROFILE SETTINGS MODAL ======= -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 class="modal-title">Profile settings</h2>
+      <button class="modal-close" id="settings-close">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Profile photo</h3>
+      <div class="avatar-edit-row">
+        <div class="avatar" id="settings-avatar"></div>
+        <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+        <button type="button" class="btn btn-ghost" id="avatar-change-btn"><span>Change photo</span></button>
+      </div>
+      <div class="err" id="avatar-err"></div>
+    </div>
+
+    <div class="settings-divider"></div>
+
+    <div class="settings-section">
+      <h3>Username</h3>
+      <form id="username-form" novalidate>
+        <div class="field">
+          <input type="text" id="settings-username" placeholder="Username">
+          <div class="err" id="settings-username-err"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" type="submit" id="username-save-btn"><span>Save username</span></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="settings-divider"></div>
+
+    <div class="settings-section">
+      <h3>Change password</h3>
+      <form id="password-form" novalidate>
+        <div class="field has-toggle">
+          <input type="password" id="settings-current-password" placeholder="Current password" autocomplete="current-password">
+          <button type="button" class="toggle-eye" id="settings-current-password-toggle" aria-label="Show password" tabindex="-1"></button>
+          <div class="err" id="settings-currentPassword-err"></div>
+        </div>
+        <div class="field has-toggle">
+          <input type="password" id="settings-new-password" placeholder="New password (min. 8 characters)" autocomplete="new-password">
+          <button type="button" class="toggle-eye" id="settings-new-password-toggle" aria-label="Show password" tabindex="-1"></button>
+          <div class="err" id="settings-newPassword-err"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" type="submit" id="password-save-btn"><span>Update password</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <!-- Incoming call -->
 <div class="incoming hidden" id="incoming-call">
@@ -826,14 +980,67 @@
   }
 
   // ---------------------------------------------------------------
+  // Avatars (initials, or an uploaded photo when the user has one)
+  // ---------------------------------------------------------------
+  function renderAvatarInto(el, user, extraHtml){
+    if(!el || !user) return;
+    const url = safeUploadUrl(user.avatarUrl);
+    if(url){
+      el.innerHTML = '<img src="' + url + '" alt="">' + (extraHtml || "");
+    }else{
+      el.innerHTML = initials(user.username) + (extraHtml || "");
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // Password visibility toggles
+  // ---------------------------------------------------------------
+  const ICON_EYE = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const ICON_EYE_OFF = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-3.22 4.44M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  function setupPasswordToggle(inputId, btnId){
+    const input = $(inputId), btn = $(btnId);
+    if(!input || !btn) return;
+    btn.innerHTML = ICON_EYE;
+    btn.addEventListener("click", ()=>{
+      const showing = input.type === "text";
+      input.type = showing ? "password" : "text";
+      btn.innerHTML = showing ? ICON_EYE : ICON_EYE_OFF;
+      btn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    });
+  }
+  [
+    ["login-password", "login-password-toggle"],
+    ["reg-password", "reg-password-toggle"],
+    ["reset-password", "reset-password-toggle"],
+    ["reset-password-confirm", "reset-password-confirm-toggle"],
+    ["settings-current-password", "settings-current-password-toggle"],
+    ["settings-new-password", "settings-new-password-toggle"],
+  ].forEach(([inputId, btnId]) => setupPasswordToggle(inputId, btnId));
+
+  // ---------------------------------------------------------------
   // Auth
   // ---------------------------------------------------------------
+  const AUTH_SCREENS = ["login", "register", "forgot", "reset"];
   function switchAuth(which){
-    hide($("screen-login")); hide($("screen-register"));
+    AUTH_SCREENS.forEach(s => hide($("screen-" + s)));
     show($("screen-" + which));
   }
   $("go-register").onclick = ()=>switchAuth("register");
   $("go-login").onclick = ()=>switchAuth("login");
+  $("go-forgot").onclick = ()=>switchAuth("forgot");
+  $("go-login-from-forgot").onclick = ()=>switchAuth("login");
+  $("go-login-from-reset").onclick = ()=>switchAuth("login");
+
+  // If this page was opened from a "reset your password" email, it will have
+  // a ?resetToken=... query param — jump straight to the reset-password screen.
+  const resetTokenFromUrl = new URLSearchParams(location.search).get("resetToken");
+  if(resetTokenFromUrl){
+    state.resetToken = resetTokenFromUrl;
+    switchAuth("reset");
+    // Tidy the address bar without triggering a reload.
+    history.replaceState({}, "", location.pathname);
+  }
 
   $("login-form").addEventListener("submit", async (e)=>{
     e.preventDefault();
@@ -878,6 +1085,53 @@
     }
   });
 
+  $("forgot-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    fieldErrors("forgot", null);
+    const btn = $("forgot-btn");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    try{
+      const email = $("forgot-email").value.trim();
+      const resp = await api("/api/auth/forgot-password", {method:"POST", body: JSON.stringify({email})});
+      toast(resp.message || "If an account exists for that email, a reset link has been sent.", "ok");
+      $("forgot-form").reset();
+    }catch(err){
+      if(err.errors) fieldErrors("forgot", err.errors);
+      else toast(err.message);
+    }finally{
+      btn.disabled = false; btn.innerHTML = "<span>Send reset link</span>";
+    }
+  });
+
+  $("reset-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    fieldErrors("reset", null);
+    const password = $("reset-password").value;
+    const confirm = $("reset-password-confirm").value;
+    if(password !== confirm){
+      fieldErrors("reset", {"password-confirm": "Passwords do not match"});
+      return;
+    }
+    if(!state.resetToken){
+      toast("This reset link is missing its token — please use the link from your email again.");
+      return;
+    }
+    const btn = $("reset-btn");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    try{
+      const resp = await api("/api/auth/reset-password", {method:"POST", body: JSON.stringify({token: state.resetToken, newPassword: password})});
+      toast(resp.message || "Password reset successfully. You can now sign in.", "ok");
+      state.resetToken = null;
+      $("reset-form").reset();
+      switchAuth("login");
+    }catch(err){
+      if(err.errors) fieldErrors("reset", err.errors);
+      else toast(err.message);
+    }finally{
+      btn.disabled = false; btn.innerHTML = "<span>Reset password</span>";
+    }
+  });
+
   $("logout-btn").onclick = ()=>{
     endCall(true);
     cancelRecording();
@@ -887,16 +1141,110 @@
   };
 
   // ---------------------------------------------------------------
+  // Profile settings modal (username, avatar, change password)
+  // ---------------------------------------------------------------
+  function openSettings(){
+    fieldErrors("settings", null);
+    $("settings-username").value = state.me.username;
+    renderAvatarInto($("settings-avatar"), state.me);
+    $("password-form").reset();
+    $("settings-modal").classList.add("show");
+  }
+  function closeSettings(){
+    $("settings-modal").classList.remove("show");
+  }
+  $("settings-btn").onclick = openSettings;
+  $("settings-close").onclick = closeSettings;
+  $("settings-modal").addEventListener("click", (e)=>{
+    if(e.target.id === "settings-modal") closeSettings();
+  });
+
+  $("avatar-change-btn").onclick = ()=>$("avatar-input").click();
+  $("avatar-input").addEventListener("change", async ()=>{
+    const file = $("avatar-input").files[0];
+    $("avatar-input").value = "";
+    if(!file) return;
+    if(!file.type.startsWith("image/")){
+      toast("Please choose an image file");
+      return;
+    }
+    if(file.size > MAX_UPLOAD_BYTES){
+      toast("That image is too large — the limit is " + Math.round(MAX_UPLOAD_BYTES/(1024*1024)) + " MB");
+      return;
+    }
+    const form = new FormData();
+    form.append("file", file);
+    try{
+      const res = await fetch(API_BASE + "/api/users/me/avatar", {
+        method: "POST",
+        headers: {"Authorization": "Bearer " + state.token},
+        body: form
+      });
+      const body = await res.json().catch(()=>null);
+      if(!res.ok || !body || !body.status){
+        throw new Error((body && body.message) || "Could not update your profile photo");
+      }
+      state.me = body.data;
+      renderAvatarInto($("settings-avatar"), state.me);
+      renderAvatarInto($("me-avatar"), state.me, '<span class="status-dot"></span>');
+      renderConvList();
+      if(state.activeConversation) renderAvatarInto($("peer-avatar"), otherParticipant(state.activeConversation));
+      toast("Profile photo updated", "ok");
+    }catch(err){
+      toast(err.message);
+    }
+  });
+
+  $("username-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    fieldErrors("settings", null);
+    const btn = $("username-save-btn");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    try{
+      const username = $("settings-username").value.trim();
+      const resp = await api("/api/users/me", {method:"PATCH", body: JSON.stringify({username})});
+      state.me = resp.data;
+      $("me-name").textContent = state.me.username;
+      renderConvList();
+      toast("Username updated", "ok");
+    }catch(err){
+      if(err.errors) fieldErrors("settings", err.errors);
+      else toast(err.message);
+    }finally{
+      btn.disabled = false; btn.innerHTML = "<span>Save username</span>";
+    }
+  });
+
+  $("password-form").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    fieldErrors("settings", null);
+    const btn = $("password-save-btn");
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+    try{
+      const currentPassword = $("settings-current-password").value;
+      const newPassword = $("settings-new-password").value;
+      await api("/api/users/me/password", {method:"PUT", body: JSON.stringify({currentPassword, newPassword})});
+      $("password-form").reset();
+      toast("Password updated", "ok");
+    }catch(err){
+      if(err.errors) fieldErrors("settings", err.errors);
+      else toast(err.message);
+    }finally{
+      btn.disabled = false; btn.innerHTML = "<span>Update password</span>";
+    }
+  });
+
+  // ---------------------------------------------------------------
   // Boot chat shell
   // ---------------------------------------------------------------
   async function bootChat(){
-    hide($("screen-login")); hide($("screen-register"));
+    AUTH_SCREENS.forEach(s => hide($("screen-" + s)));
     show($("screen-chat"));
 
     const meResp = await api("/api/users/me");
     state.me = meResp.data;
     $("me-name").textContent = state.me.username;
-    $("me-avatar").innerHTML = initials(state.me.username) + '<span class="status-dot"></span>';
+    renderAvatarInto($("me-avatar"), state.me, '<span class="status-dot"></span>');
 
     await loadConversations();
     connectSocket();
@@ -930,7 +1278,7 @@
         const row = document.createElement("div");
         row.className = "conv-item" + (state.activeConversation && state.activeConversation.id === conv.id ? " active" : "");
         row.innerHTML = `
-          <div class="avatar sm">${initials(peer.username)}</div>
+          <div class="avatar sm"></div>
           <div class="conv-main">
             <div class="conv-name">${escapeHtml(peer.username)}</div>
             <div class="conv-preview">${preview}</div>
@@ -938,6 +1286,7 @@
           <div class="conv-meta">
             <div class="conv-time">${last ? fmtTime(last.createdAt) : ""}</div>
           </div>`;
+        renderAvatarInto(row.querySelector(".avatar"), peer);
         row.onclick = ()=>openConversation(conv);
         list.appendChild(row);
       });
@@ -980,7 +1329,8 @@
         users.forEach(u=>{
           const row = document.createElement("div");
           row.className = "search-row";
-          row.innerHTML = `<div class="avatar sm">${initials(u.username)}</div><span>${escapeHtml(u.username)}</span><button>Chat</button>`;
+          row.innerHTML = `<div class="avatar sm"></div><span>${escapeHtml(u.username)}</span><button>Chat</button>`;
+          renderAvatarInto(row.querySelector(".avatar"), u);
           row.querySelector("button").onclick = async ()=>{
             try{
               const cResp = await api("/api/conversations", {method:"POST", body: JSON.stringify({userId: u.id})});
@@ -1013,7 +1363,7 @@
     document.querySelector(".main").classList.add("chat-open");
 
     const peer = otherParticipant(conv);
-    $("peer-avatar").textContent = initials(peer.username);
+    renderAvatarInto($("peer-avatar"), peer);
     $("peer-name").textContent = peer.username;
     $("peer-sub").textContent = peer.status === "ONLINE" ? "online" : "offline";
 

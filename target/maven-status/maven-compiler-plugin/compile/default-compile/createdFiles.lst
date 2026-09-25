@@ -1,4 +1,5 @@
 com/example/chat/controller/UserController.class
+com/example/chat/entity/PasswordResetToken.class
 com/example/chat/service/CallService.class
 com/example/chat/util/CurrentUserResolver.class
 com/example/chat/util/RequestValidator.class
@@ -6,9 +7,12 @@ com/example/chat/dto/MessageRequest.class
 com/example/chat/service/AuthService.class
 com/example/chat/ws/JwtChannelInterceptor.class
 com/example/chat/util/CurrentUserResolver$1.class
+com/example/chat/dto/UpdateUsernameRequest.class
 com/example/chat/router/CallRouter.class
+com/example/chat/service/EmailService.class
 com/example/chat/router/ConversationRouter.class
 com/example/chat/config/SecurityConfig.class
+com/example/chat/repository/PasswordResetTokenRepository.class
 com/example/chat/entity/User$Status.class
 com/example/chat/exception/GlobalExceptionHandler.class
 com/example/chat/ChatApplication.class
@@ -25,6 +29,7 @@ com/example/chat/config/WebConfig.class
 com/example/chat/dto/CallSignal.class
 com/example/chat/controller/AuthController.class
 com/example/chat/security/JwtAuthenticationFilter.class
+com/example/chat/dto/ResetPasswordRequest.class
 com/example/chat/entity/Message$MessageType.class
 com/example/chat/dto/LoginRequest.class
 com/example/chat/dto/RegisterRequest.class
@@ -37,8 +42,10 @@ com/example/chat/security/JwtService.class
 com/example/chat/exception/ResourceNotFoundException.class
 com/example/chat/repository/MessageRepository.class
 com/example/chat/service/FileStorageService.class
+com/example/chat/dto/ChangePasswordRequest.class
 com/example/chat/dto/TypingRequest.class
 com/example/chat/config/SchemaMigration.class
+com/example/chat/dto/ForgotPasswordRequest.class
 com/example/chat/service/ConversationService.class
 com/example/chat/service/MessageService.class
 com/example/chat/router/MediaRouter.class

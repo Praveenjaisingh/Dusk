@@ -16,6 +16,8 @@ public class AuthRouter {
         return RouterFunctions.route()
                 .POST("/api/auth/register", authController::register)
                 .POST("/api/auth/login", authController::login)
+                .POST("/api/auth/forgot-password", authController::forgotPassword)
+                .POST("/api/auth/reset-password", authController::resetPassword)
                 .build();
     }
 }

@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import com.example.chat.dto.ForgotPasswordRequest;
 import com.example.chat.dto.LoginRequest;
 import com.example.chat.dto.RegisterRequest;
+import com.example.chat.dto.ResetPasswordRequest;
 import com.example.chat.entity.User;
 import com.example.chat.exception.ValidationException;
 import com.example.chat.service.AuthService;
@@ -78,6 +80,59 @@ public class AuthController {
             return ServerResponse.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                     "status", false,
                     "message", "Invalid email or password"
+            ));
+        } catch (Exception e) {
+            return ServerResponse.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /** POST /api/auth/forgot-password — emails a reset link if the address is registered. */
+    public ServerResponse forgotPassword(ServerRequest request) throws Exception {
+        try {
+            ForgotPasswordRequest body = request.body(ForgotPasswordRequest.class);
+            requestValidator.validate(body);
+
+            authService.forgotPassword(body.getEmail());
+
+            // Same response whether or not the email exists, so the endpoint can't be used to enumerate accounts.
+            return ServerResponse.ok().body(Map.of(
+                    "status", true,
+                    "message", "If an account exists for that email, a reset link has been sent."
+            ));
+        } catch (ValidationException ex) {
+            return ServerResponse.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", false,
+                    "message", "Validation failed",
+                    "errors", ex.getErrors()
+            ));
+        } catch (Exception e) {
+            return ServerResponse.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /** POST /api/auth/reset-password — sets a new password using a link from the forgot-password email. */
+    public ServerResponse resetPassword(ServerRequest request) throws Exception {
+        try {
+            ResetPasswordRequest body = request.body(ResetPasswordRequest.class);
+            requestValidator.validate(body);
+
+            authService.resetPassword(body.getToken(), body.getNewPassword());
+
+            return ServerResponse.ok().body(Map.of(
+                    "status", true,
+                    "message", "Password reset successfully. You can now sign in."
+            ));
+        } catch (ValidationException ex) {
+            return ServerResponse.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", false,
+                    "message", "Validation failed",
+                    "errors", ex.getErrors()
             ));
         } catch (Exception e) {
             return ServerResponse.status(HttpStatus.BAD_REQUEST).body(Map.of(
